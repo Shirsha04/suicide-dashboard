@@ -1,8 +1,7 @@
-import matplotlib
-matplotlib.use('Agg')  # Use Agg backend for non-GUI plotting
-import matplotlib.pyplot as plt
+import os
 from flask import Flask, render_template
 import pandas as pd
+import matplotlib.pyplot as plt
 
 app = Flask(__name__)
 
@@ -11,6 +10,11 @@ def home():
     df = pd.read_csv("suicide_data.csv")
     yearly_data = df.groupby('year')['suicides_no'].sum()
 
+    # ✅ Make sure 'static' folder exists
+    if not os.path.exists("static"):
+        os.makedirs("static")
+
+    # 📊 Save the graph
     plt.figure(figsize=(8,4))
     yearly_data.plot(kind='line', color='red', marker='o')
     plt.title("Suicides in India Over Years")
@@ -18,10 +22,8 @@ def home():
     plt.ylabel("Number of Suicides")
     plt.grid(True)
     plt.tight_layout()
-    
-    # Save the plot to a file (without showing the GUI)
     plt.savefig("static/graph.png")
-    plt.close()  # Close the plot to release resources
+    plt.close()
 
     total = df['suicides_no'].sum()
     return render_template("index.html", total=total)
